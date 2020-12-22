@@ -170,44 +170,43 @@ ASP.NET Core 3.0 以降でのエンドポイントのルーティングでは:
 
 <a name="mr"></a>
 
-### <a name="multiple-conventional-routes"></a>複数の従来のルート
+### <a name="multiple-conventional-routes"></a>複数の規則ルート
 
-との呼び出しをさらに追加することで、複数の従来の [ルート](#cr) を内部に追加でき `UseEndpoints` <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllerRoute%2A> <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapAreaControllerRoute%2A> ます。 これにより、複数の規則を定義したり、次のような特定の [アクション](#action)専用の通常のルートを追加したりすることができます。
+`UseEndpoints` の中で <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllerRoute%2A> と<xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapAreaControllerRoute%2A> を使うことで複数の [規則ルート](#cr) を内部に追加できます。これにより、複数の規則を定義したり、次のような特定の [アクション](#action)専用の規則ルートを追加することができます:
 
 [!code-csharp[](routing/samples/3.x/main/Startup.cs?name=snippet_1)]
 
 <a name="dcr"></a>
 
-前のコードのルートは、 `blog` 専用の従来の **ルート** です。 これは、次の理由で専用の従来のルートと呼ばれます。
+前述のコードの `blog` ルートは、 **専用の規則ルート** です。 これは、次の理由で専用の規則ルートと呼ばれます。
 
-* 従来の [ルーティング](#cr)を使用します。
-* これは特定の [アクション](#action)専用です。
+* [規則ルーティング](#cr)で使われます。
+* 特定の [アクション](#action)専用です。
 
-`controller`とは `action` ルートテンプレートにパラメーターとして表示されないため、 `"blog/{*article}"` 次のようになります。
+`controller` と `action` では、ルートテンプレート `"blog/{*article}"` がパラメーターとして にパラメーターとして表示されず次のようになります:
 
-* 既定値のみを持つことができ `{ controller = "Blog", action = "Article" }` ます。
-* このルートは常にアクションにマップさ `BlogController.Article` れます。
+* 既定の値 `{ controller = "Blog", action = "Article" }` のみを持つことができます。
+* このルートは常に `BlogController.Article` アクションにマップさ れます。
 
-`/Blog`、 `/Blog/Article` 、および `/Blog/{any-string}` は、ブログルートに一致する唯一の URL パスです。
+`/Blog`、 `/Blog/Article` 、および `/Blog/{any-string}` は、blog ルートに一致する唯一の URL パスです。
 
 上記の例の場合:
 
-* `blog` ルートは最初に追加されるため、ルートより優先順位が高くなり `default` ます。
-* は、URL の一部としてアーティクル名を持つことが一般的である、 [スラグ](https://developer.mozilla.org/docs/Glossary/Slug) スタイルのルーティングの例です。
+* `blog` ルートは最初に追加されているため、`default` ルートより優先順位が高くなります。
+* URL の一部として記事名を持つことが一般的である [Slug](https://developer.mozilla.org/docs/Glossary/Slug) スタイルのルーティングの例です。
 
 > [!WARNING]
-> ASP.NET Core 3.0 以降では、ルーティングは次のようになります。
-> * *ルート* と呼ばれる概念を定義します。 `UseRouting` では、ルートの照合がミドルウェア パイプラインに追加されます。 ミドルウェアは、 `UseRouting` アプリで定義されているエンドポイントのセットを調べ、要求に基づいて最適なエンドポイント一致を選択します。
-> * やなどの拡張機能の実行順序についての保証を提供 <xref:Microsoft.AspNetCore.Routing.IRouteConstraint> <xref:Microsoft.AspNetCore.Mvc.ActionConstraints.IActionConstraint> します。
+> ASP.NET Core 3.0 以降では、ルーティングは次のことをしません:
+> * *ルート* と呼ばれる概念を定義。 `UseRouting` では、ルートの照合がミドルウェア パイプラインに追加されます。 `UseRouting` ミドルウェアは、アプリで定義されているエンドポイントのセットを調べ、要求に基づいて最適なエンドポイントの一致を選択します。
+> * <xref:Microsoft.AspNetCore.Routing.IRouteConstraint> や <xref:Microsoft.AspNetCore.Mvc.ActionConstraints.IActionConstraint> などの拡張機能の実行順序についての保証を提供
 >
->ルーティングのリファレンス資料については、「 [ルーティング](xref:fundamentals/routing) 」を参照してください。
+>ルーティングのリファレンス資料は、「 [ルーティング](xref:fundamentals/routing) 」を参照してください。
 
 <a name="cro"></a>
 
-### <a name="conventional-routing-order"></a>従来のルーティング順序
+### <a name="conventional-routing-order"></a>規則ルーティングの順序
 
-従来のルーティングは、アプリによって定義されたアクションとコントローラーの組み合わせにのみ一致します。 これは、通常のルートが重複するケースを簡略化することを目的としています。
-、、およびを使用してルートを追加する <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllerRoute%2A> <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapDefaultControllerRoute%2A> と、 <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapAreaControllerRoute%2A> 呼び出された順序に基づいて、そのエンドポイントに自動的に注文値が割り当てられます。 以前に表示されたルートからの一致は、優先順位が高くなります。 規則ルーティングは順序に依存します。 一般に、区分を持つルートは、領域を持たないルートよりも固有であるため、前に配置する必要があります。 などのすべてのルートパラメーターを持つ[専用の従来のルート](#dcr)では、ルートの `{*article}` [最長](xref:fundamentals/routing#greedy)一致が実現されます。これは、他のルートと一致するように意図した url と一致することを意味します。 最短一致の一致を防ぐために、ルートテーブルの中で最長一致のルートを指定します。
+規則ルーティングは、アプリによって定義されたアクションとコントローラーの組み合わせにのみ一致します。 これは、規則ルートが重複するケースを簡略化することを目的としています。<xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllerRoute%2A>、<xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapDefaultControllerRoute%2A> や <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapAreaControllerRoute%2A>を使用してルートを追加すると、呼び出された順序に基づいて、そのエンドポイントに自動的に順序の値が割り当てられます。以前に表示されたルートからの一致は、優先順位が高くなります。 規則ルーティングは順序に依存します。 一般に、区分を持つルートは、領域を持たないルートよりも固有であるため、前に配置する必要があります。 `{*article}` のような包括的なルートパラメーターを持つ[専用の従来のルート](#dcr)では、ルートの[Greedy](xref:fundamentals/routing#greedy) match が実現されます。これは、他のルートと一致するように意図した url と一致することを意味します。 Greedy Match を防ぐために、Greedy なルートをルートテーブルの後部に配置します。
 
 [!INCLUDE[](~/includes/catchall.md)]
 
@@ -215,10 +214,10 @@ ASP.NET Core 3.0 以降でのエンドポイントのルーティングでは:
 
 ### <a name="resolving-ambiguous-actions"></a>あいまいなアクションの解決
 
-ルーティングを通じて2つのエンドポイントが一致する場合、ルーティングでは次のいずれかを実行する必要があります。
+ルーティングを通じて2つのエンドポイントが一致する場合、ルーティングでは次のいずれかを実行する必要があります:
 
-* 最適な候補を選択します。
-* 例外をスローします。
+* 最適な候補を選択
+* 例外をスロー
 
 たとえば次のような点です。
 
@@ -227,81 +226,81 @@ ASP.NET Core 3.0 以降でのエンドポイントのルーティングでは:
 前のコントローラーは、次の2つのアクションに一致するアクションを定義します。
 
 * URL パス `/Products33/Edit/17`
-* データ `{ controller = Products33, action = Edit, id = 17 }` をルーティングします。
+* ルートデータ `{ controller = Products33, action = Edit, id = 17 }`
 
 これは、MVC コントローラーの一般的なパターンです。
 
-* `Edit(int)` 製品を編集するためのフォームを表示します。
+* `Edit(int)` は product を編集するためのフォームを表示します。
 * `Edit(int, Product)` ポストされたフォームを処理します。
 
 正しいルートを解決するには、次のようにします。
 
-* `Edit(int, Product)` は、要求が HTTP の場合に選択され `POST` ます。
-* `Edit(int)`[HTTP 動詞](#verb)が他のものである場合は、が選択されます。 `Edit(int)` は、一般に経由で呼び出され `GET` ます。
+* `Edit(int, Product)` は、要求が HTTP `POST` の場合に選択されます。
+* `Edit(int)`[HTTP 動詞](#verb) がなんであってもが選択されます。 `Edit(int)` は、一般に `GET` 経由で呼び出されます。
 
-、 <xref:Microsoft.AspNetCore.Mvc.HttpPostAttribute> 、 `[HttpPost]` は、要求の HTTP メソッドに基づいて選択できるように、ルーティングのために用意されています。 は `HttpPostAttribute` `Edit(int, Product)` よりもより適切に一致し `Edit(int)` ます。
+<xref:Microsoft.AspNetCore.Mvc.HttpPostAttribute> 、 `[HttpPost]` は、要求の HTTP メソッドに基づいて選択できるように、ルーティングのために用意されています。 は `HttpPostAttribute`は `Edit(int)`  より `Edit(int, Product)`  に一致します。
 
-のような属性の役割を理解しておくことが重要です `HttpPostAttribute` 。 同様の属性は、他の [HTTP 動詞](#verb)に対して定義されます。 [従来のルーティング](#cr)では、表示フォーム、送信フォームワークフローの一部である場合、アクションは同じアクション名を使用するのが一般的です。 例については、「 [2 つの編集アクションメソッドの確認](xref:tutorials/first-mvc-app/controller-methods-views#get-post)」を参照してください。
+`HttpPostAttribute` のような属性の役割を理解しておくことが重要です。 同様の属性は、他の [HTTP 動詞](#verb)に対して定義されます。 [規則ルーティング](#cr)では、表示フォーム、送信フォームのワークフローの一部である場合、アクションは同じアクション名を使用するのが一般的です。 例は、「 [2 つの編集アクションメソッドの確認](xref:tutorials/first-mvc-app/controller-methods-views#get-post)」を参照してください。
 
-ルーティングで最適な候補を選択できない場合は、 <xref:System.Reflection.AmbiguousMatchException> 一致する複数のエンドポイントを一覧表示するがスローされます。
+ルーティングで最適な候補を選択できない場合は、 <xref:System.Reflection.AmbiguousMatchException> がスローされ、一致する複数のエンドポイントの一覧が表示されます。
 
 <a name="routing-route-name-ref-label"></a>
 
-### <a name="conventional-route-names"></a>従来のルート名
+### <a name="conventional-route-names"></a>規則ルートの名前
 
-次の例の文字列とは、  `"blog"` `"default"` 通常のルート名です。
+次の例の文字列  `"blog"` と `"default"`は、 規則ルートの名前です。
 
 [!code-csharp[](routing/samples/3.x/main/Startup.cs?name=snippet_1)]
 
-ルート名によって、ルートに論理名が指定されます。 名前付きルートは、URL の生成に使用できます。 ルートの順序によって URL の生成が複雑になる可能性がある場合、名前付きルートを使用すると、URL の作成が簡単になります。 ルート名は、アプリケーション全体で一意である必要があります。
+ルート名によって、ルートに論理名が付与されます。名前付きルートは、URL の生成に使用できます。名前付きルートを使用すると、ルートの順序によって URL の生成が複雑になる可能性がある場合に URL の作成が簡単になります。 ルート名は、アプリケーション全体で一意である必要があります。
 
-ルート名:
+ルート名は:
 
 * URL の照合や要求の処理には影響しません。
-* は、URL の生成にのみ使用されます。
+* URL の生成にのみ使用されます。
 
-ルート名の概念は、ルーティングで [IEndpointNameMetadata](xref:Microsoft.AspNetCore.Routing.IEndpointNameMetadata)として表されます。 **ルート名** と **エンドポイント名** の用語:
+ルート名の概念は、ルーティングで [IEndpointNameMetadata](xref:Microsoft.AspNetCore.Routing.IEndpointNameMetadata)として表されます。 **ルート名** と **エンドポイント名** の用語は:
 
-* 交換可能です。
+* 同じ意味です。
 * ドキュメントとコードで使用されるものは、記述されている API によって異なります。
 
 <a name="attribute-routing-ref-label"></a>
 <a name="ar"></a>
 
-## <a name="attribute-routing-for-rest-apis"></a>REST Api の属性ルーティング
+## <a name="attribute-routing-for-rest-apis"></a>REST APIs の属性ルーティング
 
-REST Api では、属性ルーティングを使用して、アプリの機能をリソースのセットとしてモデル化し、操作が [HTTP 動詞](#verb)によって表されるようにする必要があります。
+REST APIs では、属性ルーティングを使用して、アプリの機能をリソースのセットとしてモデル化し、操作が [HTTP 動詞](#verb)によって表されるようにする必要があります。
 
 属性ルーティングでは、属性のセットを使ってアクションをルート テンプレートに直接マップします。 次の `StartUp.Configure` コードは、REST API の一般的なコードであり、次のサンプルで使用します。
 
 [!code-csharp[](routing/samples/3.x/main/StartupAPI.cs?name=snippet)]
 
-前のコードで <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllers%2A> は、 `UseEndpoints` 属性ルーティングコントローラーをマップするために、内でが呼び出されます。
+ 前のコードで <xref:Microsoft.AspNetCore.Builder.ControllerEndpointRouteBuilderExtensions.MapControllers%2A> は、 `UseEndpoints` 内で属性ルーティングコントローラーをマップするために呼び出されます。
 
-次の例では
+次の例では:
 
 * 上記の `Configure` メソッドが使用されます。
-* `HomeController` 既定の従来のルートと同様の Url のセットと一致 `{controller=Home}/{action=Index}/{id?}` します。
+* `HomeController` は、既定の規則ルート `{controller=Home}/{action=Index}/{id?}` と同様の Url のセットと一致します。
 
 [!code-csharp[](routing/samples/3.x/main/Controllers/HomeController.cs?name=snippet2)]
 
-`HomeController.Index`アクションは、URL パス、、 `/` 、またはのいずれかに対して実行され `/Home` `/Home/Index` `/Home/Index/3` ます。
+`HomeController.Index`アクションは、URL パスの`/`、`/Home`、`/Home/Index`、`/Home/Index/3` のいずれかに対して実行されます。
 
-この例では、属性ルーティングと [従来のルーティング](#cr)の主なプログラミングの違いについて取り上げます。 属性ルーティングでは、ルートを指定するためにより多くの入力が必要です。 従来の既定のルートは、ルートをより簡潔に処理します。 ただし、属性ルーティングでは、各 [アクション](#action)に適用されるルートテンプレートを正確に制御する必要があります。
+この例では、属性ルーティングと [規則ルーティング](#cr) の主なプログラミングの違いについて取り上げます。 属性ルーティングでは、ルートを指定するためにより多くの入力が必要です。 規則の既定ルートは、ルートをより簡潔に処理します。 しかしながら、属性ルーティングは、各 [アクション](#action)に適用されるルートテンプレートを緻密に制御することができます。
 
-属性のルーティングでは、 [トークンの置換](#routing-token-replacement-templates-ref-label) が使用されていない限り、アクションが一致する部分はコントローラーとアクションの名前によって決まります。 次の例は、前の例と同じ Url に一致します。
+属性のルーティングでは、 [トークンの置換](#routing-token-replacement-templates-ref-label) が使用されていない限り、アクションが一致する部分はコントローラーとアクションの名前によって決まります。 次の例は、前の例と同じ Url に一致します:
 
 [!code-csharp[](routing/samples/3.x/main/Controllers/MyDemoController.cs?name=snippet)]
 
-次のコードでは、とのトークン置換を使用してい `action` `controller` ます。
+次のコードでは、`action` と `controller`でトークン置換を使用しています:
 
 [!code-csharp[](routing/samples/3.x/main/Controllers/HomeController.cs?name=snippet22)]
 
-コントローラーには、次のコードが適用され `[Route("[controller]/[action]")]` ます。
+次のコードでは、コントローラーに `[Route("[controller]/[action]")]` が適用しています:
 
 [!code-csharp[](routing/samples/3.x/main/Controllers/HomeController.cs?name=snippet24)]
 
-前のコードでは、 `Index` メソッドテンプレートをルートテンプレートに付加する必要があり `/` `~/` ます。 `/` または `~/` で始まるアクションに適用されるルート テンプレートは、コントローラーに適用されるルート テンプレートと結合されません。
+前のコードでは、 `Index` メソッドテンプレートにはルートテンプレートに `/` または `~/` を付加する必要があります。 `/` または `~/` で始まるアクションに適用されたルート テンプレートは、コントローラーに適用されたルート テンプレートと結合されません。
 
 ルートテンプレートの選択の詳細については、 [ルートテンプレートの優先順位](xref:fundamentals/routing#rtp) に関するセクションを参照してください。
 
